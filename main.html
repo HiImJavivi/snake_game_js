@@ -2,14 +2,12 @@
 <html lang="en">
   <head>
     <title>Snake game</title>
-    <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
 
-    <!-- Bootstrap CSS v5.2.0-beta1 -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
@@ -45,12 +43,12 @@
         <div class="flex flex-col justify-center -mt-10 mb-2">
           <h1 class="text-5xl text-green-600 font-medium">SNAKE GAME</h1>
           <div class="flex justify-center gap-5">
-            <button
+            <!-- <button
               id="startgame"
               class="bg-red-400 h-10 text-center self-center px-3"
             >
               Start Game
-            </button>
+            </button> -->
             <button
               id="stop-game"
               class="bg-blue-400 h-10 text-center self-center"
@@ -60,7 +58,6 @@
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 320 512"
               >
-                <!--! Font Awesome Pro 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
                 <path
                   d="M272 63.1l-32 0c-26.51 0-48 21.49-48 47.1v288c0 26.51 21.49 48 48 48L272 448c26.51 0 48-21.49 48-48v-288C320 85.49 298.5 63.1 272 63.1zM80 63.1l-32 0c-26.51 0-48 21.49-48 48v288C0 426.5 21.49 448 48 448l32 0c26.51 0 48-21.49 48-48v-288C128 85.49 106.5 63.1 80 63.1z"
                 />
@@ -99,7 +96,7 @@
         let snake;
         let direction;
         let nextdirection;
-        
+
         let length;
         let board = document.getElementById("playzone");
         let boardSize = 15;
@@ -107,8 +104,8 @@
         let playzone = document.getElementById("playzone");
         let movement;
 
-        let buttonstart = document.getElementById("startgame");
-        buttonstart.addEventListener("click", startGame);
+        // let buttonstart = document.getElementById("startgame");
+        // buttonstart.addEventListener("click", startGame);
 
         let stopgame = document.getElementById("stop-game");
         stopgame.addEventListener("click", stopGame);
@@ -122,11 +119,14 @@
         startGame();
 
         let scorespan = document.getElementById("number_score");
+        let recordSpan = document.getElementById("number_record");
 
         //console.log(playzone_width);
         let record = localStorage.getItem("lastrecord")
           ? localStorage.getItem("lastrecord")
           : 0;
+
+        recordSpan.innerText = record;
 
         function startGame() {
           gameoverscreen.hidden = true;
@@ -135,7 +135,7 @@
             console.log("entro");
             snake = ["2-0", "1-0", "0-0"];
             length = snake.length;
-            nextdirection = "rigth";
+            nextdirection = "right";
             playzone.innerHTML = "";
 
             board = Array.from(Array(boardSize), () =>
@@ -143,7 +143,6 @@
             );
             printBoard();
             pintarmanzana();
-            pintarSnake();
             movement = setInterval(function () {
               //this code runs every second
               moveSnake();
@@ -194,22 +193,13 @@
           manzana = manzana.id;
         }
 
-        function pintarSnake() {
-          Array.from(document.getElementsByClassName("snake")).forEach(
-            (element) => {
-              element.removeAttribute("class", "snake");
-              element.setAttribute("class", "square");
-            }
-          );
-          snake.forEach((position) => {
-            snakeplace = document.getElementById(position);
-            snakeplace.setAttribute("class", "snake");
-          });
-        }
-
         function gameOver() {
           gameoverscreen.hidden = false;
           clearInterval(movement);
+          if (score >= record) {
+            recordSpan.innerText = score;
+            localStorage.setItem("lastrecord", score);
+          }
           movement = 0;
           gameover = true;
         }
@@ -231,103 +221,91 @@
             }
           } else if (e.keyCode == "37") {
             // left arrow
-            if (direction !== "rigth") {
+            if (direction !== "right") {
               nextdirection = "left";
             }
           } else if (e.keyCode == "39") {
             // right arrow
             if (direction !== "left") {
-              nextdirection = "rigth";
+              nextdirection = "right";
             }
           }
         }
 
         function moveSnake() {
-          let headposition;
-          let end;
-          direction = nextdirection
-          snakecopy = [...snake];
-          if (direction == "down") {
-            snake.forEach((head, index) => {
-              if (index == 0) {
-                positions = head.split("-");
-                positions[0] = parseInt(positions[0]) + 1;
-                if (positions[0] < 0 || positions[0] > boardSize - 1) {
-                  end = true;
-                }
+          const directionOffsets = {
+            up: [-1, 0],
+            down: [1, 0],
+            left: [0, -1],
+            right: [0, 1],
+          };
+          const rotationMap = {
+            down: "0deg",
+            left: "90deg",
+            up: "180deg",
+            right: "-90deg",
+          };
 
-                head = positions[0] + "-" + positions[1];
-                snake[index] = head;
-              } else {
-                snake[index] = snakecopy[index - 1];
-              }
-            });
-          }
-          if (direction == "up") {
-            snake.forEach((head, index) => {
-              if (index == 0) {
-                positions = head.split("-");
-                positions[0] = parseInt(positions[0]) - 1;
-                if (positions[0] < 0 || positions[0] > boardSize - 1) {
-                  end = true;
-                }
-                head = positions[0] + "-" + positions[1];
-                snake[index] = head;
-              } else {
-                snake[index] = snakecopy[index - 1];
-              }
-            });
-          }
-          if (direction == "left") {
-            snake.forEach((head, index) => {
-              if (index == 0) {
-                positions = head.split("-");
-                positions[1] = parseInt(positions[1]) - 1;
-                if (positions[1] < 0 || positions[1] > boardSize - 1) {
-                  end = true;
-                }
-                head = positions[0] + "-" + positions[1];
-                snake[index] = head;
-              } else {
-                snake[index] = snakecopy[index - 1];
-              }
-            });
-          }
-          if (direction == "rigth") {
-            snake.forEach((head, index) => {
-              if (index == 0) {
-                positions = head.split("-");
-                positions[1] = parseInt(positions[1]) + 1;
+          const currentRotation = rotationMap[nextdirection];
 
-                if (positions[1] < 0 || positions[1] > boardSize - 1) {
-                  end = true;
-                }
-                headposition = positions[0] + "-" + positions[1];
-                snake[index] = head;
-              } else {
-                snake[index] = snakecopy[index - 1];
-              }
-            });
-            snake[0] = headposition;
+          direction = nextdirection;
+          const offset = directionOffsets[direction];
+          if (!offset) return;
+
+          const snakeCopy = [...snake];
+          const head = snake[0].split("-").map(Number);
+          const newHead = [head[0] + offset[0], head[1] + offset[1]];
+
+          if (
+            newHead[0] < 0 ||
+            newHead[0] >= boardSize ||
+            newHead[1] < 0 ||
+            newHead[1] >= boardSize
+          ) {
+            gameOver();
           }
+
+          const newHeadStr = newHead.join("-");
+          snake[0] = newHeadStr;
+
+          for (let i = 1; i < snake.length; i++) {
+            snake[i] = snakeCopy[i - 1];
+          }
+
           if (snake[0] === manzana) {
-            snake.push(snakecopy[snakecopy.length - 1]);
+            snake.push(snakeCopy[snakeCopy.length - 1]);
             score += 10;
-
             pintarmanzana();
           }
 
           scorespan.innerText = score;
 
-          for (var i = 1; i < snake.length; i++) {
-            if (snake[i] === snake[0]) [gameOver()];
+          if (snake.slice(1).includes(snake[0])) {
+            gameOver();
           }
 
-          if (end) {
-            gameOver();
-          } else {
-            pintarSnake();
-          }
+          //Pinta la nueva snake
+
+          Array.from(document.getElementsByClassName("snake")).forEach(
+            (element) => {
+              element.removeAttribute("class");
+              element.setAttribute("class", "square");
+            }
+          );
+          Array.from(document.getElementsByClassName("snake-head")).forEach(
+            (element) => {
+              element.removeAttribute("class");
+              element.setAttribute("class", "square");
+            }
+          );
+
+          snake.forEach((position, index) => {
+            const snakeplace = document.getElementById(position);
+            if (index === 0) {
+              snakeplace.setAttribute("class", "snake-head");
+              snakeplace.style.setProperty("--rotate", currentRotation);
+            } else snakeplace.setAttribute("class", "snake");
+          });
         }
       };
     </script>
